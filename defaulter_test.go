@@ -196,3 +196,29 @@ func TestNestedStruct(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(defaultFoo.BarP, arg.BarP)
 }
+
+func TestEmptyArray(t *testing.T) {
+	assert := assert.New(t)
+
+	type Foo struct {
+		StringA []*string
+	}
+
+	var defaultFoo, arg Foo
+
+	assert.Nil(Set(&arg, defaultFoo))
+	assert.Equal(defaultFoo, arg)
+}
+
+func TestEmptyMap(t *testing.T) {
+	assert := assert.New(t)
+
+	type Foo struct {
+		Map map[string]string
+	}
+
+	var defaultFoo, arg Foo
+
+	assert.Nil(Set(&arg, defaultFoo))
+	assert.Equal(defaultFoo, arg)
+}

@@ -49,27 +49,31 @@ func setStructField(field reflect.Value, defaultVal reflect.Value) {
 	if isEmptyValue(field) {
 		switch field.Kind() {
 		case reflect.Slice:
-			ref := reflect.New(field.Type())
-			ref.Elem().Set(reflect.MakeSlice(field.Type(), defaultVal.Len(), defaultVal.Len()))
-			for i := 0; i < defaultVal.Len(); i++ {
-				d := defaultVal.Index(i)
-				s := ref.Elem().Index(i)
-				setStructField(s, d)
+			if !defaultVal.IsNil() {
+				ref := reflect.New(field.Type())
+				ref.Elem().Set(reflect.MakeSlice(field.Type(), defaultVal.Len(), defaultVal.Len()))
+				for i := 0; i < defaultVal.Len(); i++ {
+					d := defaultVal.Index(i)
+					s := ref.Elem().Index(i)
+					setStructField(s, d)
+				}
+				field.Set(ref.Elem())
 			}
-			field.Set(ref.Elem())
 		case reflect.Map:
-			ref := reflect.New(field.Type())
-			ref.Elem().Set(reflect.MakeMap(field.Type()))
-			keys := defaultVal.MapKeys()
-			for _, key := range keys {
-				refKey := reflect.New(key.Type())
-				setStructField(refKey.Elem(), key)
-				valueValue := defaultVal.MapIndex(key)
-				refValue := reflect.New(valueValue.Type())
-				setStructField(refValue.Elem(), valueValue)
-				ref.Elem().SetMapIndex(refKey.Elem(), refValue.Elem())
+			if !defaultVal.IsNil() {
+				ref := reflect.New(field.Type())
+				ref.Elem().Set(reflect.MakeMap(field.Type()))
+				keys := defaultVal.MapKeys()
+				for _, key := range keys {
+					refKey := reflect.New(key.Type())
+					setStructField(refKey.Elem(), key)
+					valueValue := defaultVal.MapIndex(key)
+					refValue := reflect.New(valueValue.Type())
+					setStructField(refValue.Elem(), valueValue)
+					ref.Elem().SetMapIndex(refKey.Elem(), refValue.Elem())
+				}
+				field.Set(ref.Elem())
 			}
-			field.Set(ref.Elem())
 		case reflect.Struct:
 		case reflect.Ptr:
 			if !defaultVal.IsNil() {
